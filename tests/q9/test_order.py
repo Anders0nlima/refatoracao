@@ -15,4 +15,15 @@ def test_final_total_examples():
 
 def test_refactor_goal_move_discount_logic_to_customer_or_policy():
     # TODO: mover lógica de desconto para Customer ou um DiscountPolicy e fazer Order delegar.
-    pass
+    c1 = Customer(vip=True, years_as_customer=5)
+    assert c1.loyalty_discount() == 40.0
+
+    c2 = Customer(vip=True, years_as_customer=2)
+    assert c2.loyalty_discount() == 25.0
+
+    c3 = Customer(vip=False, years_as_customer=10)
+    assert c3.loyalty_discount() == 15.0
+
+    c4 = Customer(vip=False, years_as_customer=1)
+    assert c4.loyalty_discount() == 0.0
+    

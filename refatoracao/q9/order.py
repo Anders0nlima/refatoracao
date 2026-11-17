@@ -9,6 +9,14 @@ class Customer:
     def is_vip(self) -> bool:
         return self.vip
 
+    def loyalty_discount(self) -> float:
+        discount = 0.0
+        if self.is_vip():
+            discount += 25.0
+        if self.years_as_customer >= 5:
+            discount += 15.0
+        return discount
+
 
 class Order:
 
