@@ -32,35 +32,48 @@ class Purchase:
 class PurchaseEmailService:
 
     def build_email(self, purchase: Purchase) -> str:
-        parts = []
+        subtotal = self._calculate_subtotal(purchase.items)
+        shipping = self._calculate_shipping(purchase.is_express)
+        discount = self._calculate_discount(subtotal, purchase.coupon)
+        total = subtotal + shipping - discount
+        
+        parts = [
+            f"Olá, {purchase.customer_name}!\n\n",
+            f"Seu pedido #{purchase.id} foi confirmado em {date.today()}.\n\n",
+            self._format_items(purchase.items),
+            f"\nSubtotal: R$ {subtotal:.2f}\n",
+            f"Frete: R$ {shipping:.2f}\n",
+            f"Descontos: R$ {discount:.2f}\n",
+            f"TOTAL: R$ {total:.2f}\n\n",
+            self._format_address(purchase.address),
+            "Obrigado por comprar com a gente!\n",
+        ]
+        return "".join(parts)
 
-        parts.append(f"Olá, {purchase.customer_name}!\n\n")
-        parts.append(f"Seu pedido #{purchase.id} foi confirmado em {date.today()}.\n\n")
-
-        parts.append("Itens:\n")
-        subtotal = 0.0
-        for it in purchase.items:
-            line = it.unit_price * it.quantity
-            subtotal += line
-            parts.append(f"- {it.name} ({it.quantity}x) : R$ {line:.2f}\n")
-
-        shipping = 29.90 if purchase.is_express else 14.90
+    def _calculate_subtotal(self, items: list[PurchaseItem]) -> float:
+        return sum(it.unit_price * it.quantity for it in items)
+    
+    def _calculate_shipping(self, is_express: bool) -> float:
+        return 29.90 if is_express else 14.90
+    
+    def _calculate_discount(self, subtotal: float, coupon: str | None) -> float:
         discount = 0.0
         if subtotal >= 300.0:
-            discount = subtotal * 0.10
-        if purchase.coupon is not None and purchase.coupon.startswith("VIP"):
+            discount += subtotal * 0.10
+        if coupon is not None and coupon.startswith("VIP"):
             discount += 20.0
-
-        total = subtotal + shipping - discount
-
-        parts.append(f"\nSubtotal: R$ {subtotal:.2f}\n")
-        parts.append(f"Frete: R$ {shipping:.2f}\n")
-        parts.append(f"Descontos: R$ {discount:.2f}\n")
-        parts.append(f"TOTAL: R$ {total:.2f}\n\n")
-
-        parts.append("Endereço de entrega:\n")
-        parts.append(f"{purchase.address.street}, {purchase.address.number}\n")
-        parts.append(f"{purchase.address.city} - {purchase.address.zip_code}\n\n")
-
-        parts.append("Obrigado por comprar com a gente!\n")
-        return "".join(parts)
+        return discount
+    
+    def _format_items(self, items: list[PurchaseItem]) -> str:
+        lines = ["Itens:\n"]
+        for it in items:
+            line = it.unit_price * it.quantity
+            lines.append(f"- {it.name} ({it.quantity}x) : R$ {line:.2f}\n")
+        return "".join(lines)
+    
+    def _format_address(self, address: Address) -> str:
+        return (
+            f"Endereço de entrega:\n"
+            f"{address.street}, {address.number}\n"
+            f"{address.city} - {address.zip_code}\n\n"
+        )

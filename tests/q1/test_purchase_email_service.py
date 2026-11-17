@@ -28,3 +28,12 @@ def test_build_email_should_keep_same_output_after_refactor():
     assert "Seu pedido #123" in email
     assert "Caderno" in email
     assert "Endereço de entrega" in email
+
+    assert "Subtotal: R$ 40.50" in email
+    assert "Frete: R$ 14.90" in email
+    assert "Descontos: R$ 20.00" in email
+    assert "TOTAL: R$ 35.40" in email
+
+    assert "Endereço de entrega:" in email
+    assert "Rua A, 10" in email
+    assert "Belém - 66000-000" in email
