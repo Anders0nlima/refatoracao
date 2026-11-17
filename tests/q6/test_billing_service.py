@@ -22,4 +22,11 @@ def test_price_table_examples():
 def test_refactor_goal_replace_conditional_with_polymorphism():
     # TODO: após refatorar, o if/elif deve desaparecer (cada plano com sua política).
     # Testes acima devem continuar passando.
-    pass
+    svc = BillingService()
+    
+    assert svc.monthly_price(Plan.STUDENT, 5, True) == pytest.approx(19.90 + 59.90, abs=0.01)
+    
+    assert svc.monthly_price(Plan.FREE, 5, True) == pytest.approx(0.0, abs=0.001)
+    
+    with pytest.raises(ValueError):
+        svc.monthly_price("INVALIDO", 10, False)
