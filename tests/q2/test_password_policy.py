@@ -17,4 +17,9 @@ def test_invalid_password_examples():
 def test_refactor_goal_inline_some_helpers():
     # TODO: após refatorar, alguns helpers devem sumir (inline)
     # Este teste não verifica estrutura, só comportamento.
-    pass
+    policy = PasswordPolicy()
+    # Casos de borda adicionais
+    assert not policy.is_valid(None)
+    assert not policy.is_valid("")
+    assert not policy.is_valid("   ")
+    assert policy.is_valid("SenhaMuitoSegura99")
