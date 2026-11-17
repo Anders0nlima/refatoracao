@@ -18,23 +18,28 @@ class Employee:
 
 
 class PayrollCalculator:
-
     def monthly_net_salary(self, e: Employee) -> float:
-        base = e.base_salary
-        overtime = 0.0
-        for ot in e.overtimes:
-            overtime += ot.hours * ot.hour_rate
-
-        gross = base + overtime
-        if gross <= 3000:
-            tax = gross * 0.08
-        elif gross <= 7000:
-            tax = gross * 0.12
-        else:
-            tax = gross * 0.18
-
-        meal_voucher = 450.0 if e.has_meal_voucher else 0.0
-        health_plan = e.health_plan_deduction
-
-        net = gross - tax - health_plan + meal_voucher
+        net = (
+            self._gross_salary(e)
+            - self._tax(e)
+            - e.health_plan_deduction
+            + self._meal_voucher(e)
+        )
         return round(net, 2)
+    
+    def _overtime_pay(self, e: Employee) -> float:
+        return sum(ot.hours * ot.hour_rate for ot in e.overtimes)
+    
+    def _gross_salary(self, e: Employee) -> float:
+        return e.base_salary + self._overtime_pay(e)
+    
+    def _tax(self, e: Employee) -> float:
+        gross = self._gross_salary(e)
+        if gross <= 3000:
+            return gross * 0.08
+        if gross <= 7000:
+            return gross * 0.12
+        return gross * 0.18
+    
+    def _meal_voucher(self, e: Employee) -> float:
+        return 450.0 if e.has_meal_voucher else 0.0
